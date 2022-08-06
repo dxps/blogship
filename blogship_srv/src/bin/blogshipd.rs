@@ -14,9 +14,16 @@ use std::{
     str::FromStr,
 };
 
-use axum::{response::IntoResponse, routing::get, Router};
+use axum::{
+    body::{boxed, Body},
+    http::{Response, StatusCode},
+    response::IntoResponse,
+    routing::get,
+    Router,
+};
 use clap::Parser;
-use tower_http::trace::TraceLayer;
+use tower::ServiceExt;
+use tower_http::{services::ServeDir, trace::TraceLayer};
 
 #[tokio::main]
 async fn main() {
@@ -29,7 +36,16 @@ async fn main() {
     let tracing_layer = TraceLayer::new_for_http();
 
     let http_svc = Router::new()
-        .route("/", get(hello))
+        .route("/api/hello", get(hello))
+        .fallback(get(|req| async move {
+            match ServeDir::new(opt.static_dir).oneshot(req).await {
+                Ok(res) => res.map(boxed),
+                Err(err) => Response::builder()
+                    .status(StatusCode::INTERNAL_SERVER_ERROR)
+                    .body(boxed(Body::from(format!("error: {err}"))))
+                    .expect("error response"),
+            }
+        }))
         .layer(tracing_layer)
         .into_make_service();
 
@@ -63,4 +79,8 @@ struct Opt {
     /// the logging level
     #[clap(short = 'l', long = "log", default_value = "info")]
     log_level: String,
+
+    /// the directory where static files are served from
+    #[clap(long = "static-dir", default_value = "../dist")]
+    static_dir: String,
 }
