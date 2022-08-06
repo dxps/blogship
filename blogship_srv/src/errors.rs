@@ -18,8 +18,8 @@ impl Display for AppError {
     }
 }
 
-impl From<rocket::Error> for AppError {
-    fn from(re: rocket::Error) -> Self {
-        Self::ServerError(re.to_string())
-    }
-}
+// impl From<rocket::Error> for AppError {
+//     fn from(re: rocket::Error) -> Self {
+//         Self::ServerError(re.to_string())
+//     }
+// }
