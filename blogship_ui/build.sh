@@ -1,4 +1,4 @@
 #!/bin/sh
 
-trunk build
+trunk build --release --public-url /assets/
 

@@ -1,4 +1,5 @@
 #!/bin/sh
 
-cargo run --bin server
+##
+cargo run --bin blogshipd -- --port 8080
 

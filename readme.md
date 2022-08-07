@@ -1,6 +1,6 @@
 # Blogship
 
-A lightweight and fast blog system.
+A lightweight and fast blogging system.
 
 _more-to-come_
 
