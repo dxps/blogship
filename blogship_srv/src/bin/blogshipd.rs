@@ -19,7 +19,7 @@ async fn main() {
     let tracing_layer = TraceLayer::new_for_http();
 
     let http_svc = Router::new()
-        .route("/api/hello", get(hello))
+        .route("/api/system-health-check", get(health_check))
         .merge(SpaRouter::new("/assets", opt.static_dir))
         .layer(tracing_layer)
         .into_make_service();
@@ -36,8 +36,8 @@ async fn main() {
         .expect("Unable to start server");
 }
 
-async fn hello() -> impl IntoResponse {
-    "hello"
+async fn health_check() -> impl IntoResponse {
+    "OK"
 }
 
 #[derive(Parser, Debug)]

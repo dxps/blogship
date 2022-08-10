@@ -14,14 +14,14 @@ enum Route {
     #[at("/")]
     Home,
 
-    #[at("/hello-server")]
-    HelloServer,
+    #[at("/system-health-check")]
+    SystemHealthCheck,
 }
 
 fn switch(routes: &Route) -> Html {
     match routes {
         Route::Home => html! { <h1>{ "Welcome to BlogShip" }</h1> },
-        Route::HelloServer => html! { <HelloServer /> },
+        Route::SystemHealthCheck => html! { <HelloServer /> },
     }
 }
 
@@ -38,13 +38,15 @@ fn app() -> Html {
 fn hello_server() -> Html {
     let data = use_state(|| None);
 
-    // Request `/api/hello` once.
     {
         let data = data.clone();
         use_effect(move || {
             if data.is_none() {
                 spawn_local(async move {
-                    let resp = Request::get("/api/hello").send().await.unwrap();
+                    let resp = Request::get("/api/system-health-check")
+                        .send()
+                        .await
+                        .unwrap();
                     let result = if !resp.ok() {
                         Err(format!(
                             "Error fetching data {} ({})",
@@ -66,7 +68,13 @@ fn hello_server() -> Html {
             html! { <div>{ "No server response" }</div> }
         }
         Some(Ok(data)) => {
-            html! { <div>{"Got server response: "}{data}</div> }
+            html! {
+                <div>
+                  <div>{"System Health Check"}</div>
+                  <div>{"Front-end: "}{"OK"}</div>
+                  <div>{"Back-end: "}{data}</div>
+                </div>
+            }
         }
         Some(Err(err)) => {
             html! { <div>{"Error fetching data from server: "}{err}</div> }
